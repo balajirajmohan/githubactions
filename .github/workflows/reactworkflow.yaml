@@ -5,13 +5,11 @@ jobs:
         runs-on: ubuntu-latest
         steps:
             - name: Get code
-              run: "git clone https://github.com/balajirajmohan/githubactions.git" 
-            - name: change folder
-              run: " cd githubactions"
-            - name: run npm install
-              run: "npm install"
-            - name: run npm test
-              run: "npm test"
+              uses: actions/checkout@v4
+            - name: Install dependencies
+              run: npm install
+            - name: Run tests
+              run: npm test
               
             
     
