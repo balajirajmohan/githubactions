@@ -10,7 +10,7 @@ jobs:
             - name: install dependencies
               run: npm install
             - name: lint
-              uses: stefanoeb/eslint-action@1.0.1
+              run: npm run lint
             - name: test
               run: npm test
             - name: build
