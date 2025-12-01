@@ -7,16 +7,25 @@ jobs:
         steps:
             - name: get code
               uses: actions/checkout@v4
-            - name: lint
-              uses: stefanoeb/eslint-action
             - name: install dependencies
               run: npm install
+            - name: lint
+              uses: stefanoeb/eslint-action@1.0.1
             - name: test
               run: npm test
+            - name: build
+              run: npm run build
 
     deploy-into-vercel: 
+        needs: lint-test-build
         runs-on: ubuntu-latest
         steps:
+            - name: get code
+              uses: actions/checkout@v4
+            - name: install dependencies
+              run: npm install
+            - name: build
+              run: npm run build
             - name: deploy into vercel
               uses: amondnet/vercel-action@v25
               with:
