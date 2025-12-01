@@ -16,6 +16,16 @@ A React + Vite application demonstrating GitHub Actions CI/CD workflows for auto
 
 This is a React application built with Vite that demonstrates modern CI/CD practices using GitHub Actions. The project includes automated testing and deployment workflows that run on every push to the repository.
 
+**Live Deployment:** Automatically deployed to Vercel on every push (after tests pass)
+
+### Features
+
+✅ **Automated Testing** - Vitest runs on every push  
+✅ **Continuous Deployment** - Auto-deploy to Vercel production  
+✅ **Security First** - All credentials stored as GitHub Secrets  
+✅ **Quality Gates** - Deployment only happens if tests pass  
+✅ **Modern Stack** - React 18 + Vite + GitHub Actions
+
 ## 🔧 How the Code Works
 
 ### Application Architecture
@@ -104,10 +114,11 @@ test:
 
 #### 2. **Deploy Job**
 
-Builds the application and prepares it for deployment:
+Builds and deploys the application to Vercel (only runs if tests pass):
 
 ```yaml
 Deploy:
+    needs: test  # Waits for tests to pass before deploying
     runs-on: ubuntu-latest
     steps:
         - name: Get code
@@ -116,39 +127,35 @@ Deploy:
           run: npm install
         - name: Build npm
           run: npm run build
-        - name: Deploy
-          run: echo "Deployed"
+        - name: Deploy to Vercel
+          uses: amondnet/vercel-action@v25
+          with:
+            vercel-token: ${{ secrets.VERCEL_TOKEN }}
+            vercel-org-id: ${{ secrets.ORG_ID }}
+            vercel-project-id: ${{ secrets.PROJECT_ID }}
+            vercel-args: '--prod'
 ```
 
 **What happens:**
-1. ✅ Checks out your code
-2. ✅ Installs dependencies
-3. ✅ Builds production-ready static files (creates `dist/` folder)
-4. ✅ Runs deployment step (currently a placeholder)
+1. ✅ Waits for tests to pass (due to `needs: test`)
+2. ✅ Checks out your code
+3. ✅ Installs dependencies
+4. ✅ Builds production-ready static files (creates `dist/` folder)
+5. ✅ Deploys to Vercel production environment
+6. ✅ Returns deployment URL in workflow logs
 
-### Jobs Run in Parallel
+### Sequential Execution
 
-Both the `test` and `Deploy` jobs run **simultaneously** (in parallel) for faster CI/CD execution. This means:
-- Deployment doesn't wait for tests to complete
-- Both jobs run independently on separate runners
-- Total workflow time is reduced
-
-### Improving the Workflow
-
-To make the deployment depend on successful tests, you can add:
-
-```yaml
-Deploy:
-    needs: test  # This makes Deploy wait for test to succeed
-    runs-on: ubuntu-latest
-    # ... rest of the job
-```
+The jobs run **sequentially** to ensure code quality before deployment:
+1. **Test job** runs first and must pass
+2. **Deploy job** only runs if tests succeed
+3. Failed tests prevent broken code from being deployed
 
 ## 🌐 How Deployment Works
 
 ### Current Setup
 
-The current deployment is a **placeholder** that outputs "Deployed" to demonstrate the workflow structure.
+The application is automatically deployed to **Vercel** on every push to the repository (after tests pass).
 
 ### Build Process
 
@@ -162,11 +169,59 @@ When `npm run build` runs:
    - Optimized images and assets
    - Generated index.html
 
-### Deployment Options
+### Vercel Deployment
 
-To actually deploy your application, you can replace the placeholder with real deployment steps:
+The deployment uses the `amondnet/vercel-action@v25` GitHub Action which:
+1. Takes the built `dist/` folder
+2. Uploads it to Vercel's CDN
+3. Deploys to production (`--prod` flag)
+4. Provides a deployment URL in the workflow logs
 
-#### Option 1: Deploy to GitHub Pages
+### Required GitHub Secrets
+
+For Vercel deployment to work, you need to set up these secrets in your repository:
+
+**Go to:** `Settings` → `Secrets and variables` → `Actions` → `New repository secret`
+
+| Secret Name | Description | How to Get It |
+|------------|-------------|---------------|
+| `VERCEL_TOKEN` | Authentication token | [Vercel Account Tokens](https://vercel.com/account/tokens) |
+| `ORG_ID` | Your Vercel organization ID | Run `vercel link` and check `.vercel/project.json` |
+| `PROJECT_ID` | Your Vercel project ID | Run `vercel link` and check `.vercel/project.json` |
+
+### Setting Up Vercel Deployment
+
+1. **Install Vercel CLI:**
+   ```bash
+   npm i -g vercel
+   ```
+
+2. **Link your project:**
+   ```bash
+   vercel login
+   vercel link
+   ```
+
+3. **Get your credentials:**
+   ```bash
+   cat .vercel/project.json
+   ```
+   Copy the `orgId` and `projectId`
+
+4. **Create a Vercel token:**
+   - Go to https://vercel.com/account/tokens
+   - Click "Create Token"
+   - Copy the token immediately
+
+5. **Add secrets to GitHub:**
+   - Go to your repo's Settings → Secrets and variables → Actions
+   - Add `VERCEL_TOKEN`, `ORG_ID`, and `PROJECT_ID`
+
+### Alternative Deployment Options
+
+If you want to use a different platform, here are alternatives:
+
+#### Deploy to GitHub Pages
 
 ```yaml
 - name: Deploy to GitHub Pages
@@ -176,7 +231,7 @@ To actually deploy your application, you can replace the placeholder with real d
     publish_dir: ./dist
 ```
 
-#### Option 2: Deploy to Netlify
+#### Deploy to Netlify
 
 ```yaml
 - name: Deploy to Netlify
@@ -187,17 +242,6 @@ To actually deploy your application, you can replace the placeholder with real d
   env:
     NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_AUTH_TOKEN }}
     NETLIFY_SITE_ID: ${{ secrets.NETLIFY_SITE_ID }}
-```
-
-#### Option 3: Deploy to Vercel
-
-```yaml
-- name: Deploy to Vercel
-  uses: amondnet/vercel-action@v20
-  with:
-    vercel-token: ${{ secrets.VERCEL_TOKEN }}
-    vercel-org-id: ${{ secrets.ORG_ID }}
-    vercel-project-id: ${{ secrets.PROJECT_ID }}
 ```
 
 ## 📁 Project Structure
@@ -239,19 +283,36 @@ githubactions/
 - **Vitest 0.22.1** - Testing framework
 - **@testing-library/react** - React component testing utilities
 - **GitHub Actions** - CI/CD automation
+- **Vercel** - Production hosting and deployment platform
 - **jsdom** - JavaScript implementation of web standards for testing
 
 ## 🔒 Security
 
-The project includes a comprehensive `.gitignore` file that prevents:
+### Git Ignore Protection
+
+The project includes a comprehensive `.gitignore` file that prevents committing:
 - Environment variables and secrets (`.env` files)
 - API keys and credentials
 - SSL certificates and private keys
 - Dependencies (`node_modules/`)
-- Build outputs
+- Build outputs (`dist/`)
+- Vercel configuration (`.vercel/` directory)
 - System and IDE files
 
-**Never commit sensitive information to your repository!**
+### GitHub Secrets
+
+All sensitive deployment credentials are stored as **encrypted GitHub Secrets**:
+- ✅ `VERCEL_TOKEN` - Never exposed in logs or code
+- ✅ `ORG_ID` - Encrypted at rest
+- ✅ `PROJECT_ID` - Only accessible to workflow runs
+
+These secrets are:
+- Encrypted using GitHub's libsodium sealed box
+- Only exposed to the runner environment during workflow execution
+- Never visible in workflow logs or pull requests
+- Can be rotated anytime without changing code
+
+**Never commit sensitive information to your repository!** Always use GitHub Secrets for credentials.
 
 ## 📝 Available Scripts
 
@@ -278,6 +339,46 @@ The GitHub Actions workflow will automatically test your changes!
 - [Vite Documentation](https://vitejs.dev/)
 - [React Documentation](https://react.dev/)
 - [Vitest Documentation](https://vitest.dev/)
+- [Vercel Documentation](https://vercel.com/docs)
+- [GitHub Secrets Documentation](https://docs.github.com/en/actions/security-guides/encrypted-secrets)
+
+## 🔑 Quick Setup Guide
+
+### First Time Setup
+
+1. **Clone and install:**
+   ```bash
+   git clone https://github.com/balajirajmohan/githubactions.git
+   cd githubactions
+   npm install
+   ```
+
+2. **Set up Vercel:**
+   ```bash
+   npm i -g vercel
+   vercel login
+   vercel link
+   ```
+
+3. **Get your credentials:**
+   ```bash
+   cat .vercel/project.json
+   ```
+
+4. **Add GitHub Secrets:**
+   - Go to `https://github.com/balajirajmohan/githubactions/settings/secrets/actions`
+   - Add `VERCEL_TOKEN` (from https://vercel.com/account/tokens)
+   - Add `ORG_ID` (from `.vercel/project.json`)
+   - Add `PROJECT_ID` (from `.vercel/project.json`)
+
+5. **Push to deploy:**
+   ```bash
+   git add .
+   git commit -m "Initial commit"
+   git push origin master
+   ```
+
+Your app will automatically test and deploy! 🎉
 
 ## 📄 License
 
