@@ -121,3 +121,6 @@ id_rsa.pub
 .netlify
 .turbo
 
+.github/workspace
+.github/workflows/*-workspace
+

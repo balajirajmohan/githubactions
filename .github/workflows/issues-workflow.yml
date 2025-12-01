@@ -1,0 +1,98 @@
+name: Issue Event Details
+on: 
+  issues:
+    types: [opened, edited, deleted, closed, reopened, assigned, unassigned, labeled, unlabeled]
+  push:
+  workflow_dispatch:
+
+jobs:
+  output-issue-details:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Output Event Information
+        run: |
+          echo "=========================================="
+          echo "📋 ISSUE EVENT DETAILS"
+          echo "=========================================="
+          echo ""
+          echo "🔔 Event Action: ${{ github.event.action }}"
+          echo "📝 Issue Number: ${{ github.event.issue.number }}"
+          echo "📌 Issue Title: ${{ github.event.issue.title }}"
+          echo "👤 Issue Author: ${{ github.event.issue.user.login }}"
+          echo "🏷️  Issue State: ${{ github.event.issue.state }}"
+          echo "🔗 Issue URL: ${{ github.event.issue.html_url }}"
+          echo ""
+          echo "=========================================="
+          echo "📂 REPOSITORY INFORMATION"
+          echo "=========================================="
+          echo ""
+          echo "📦 Repository: ${{ github.repository }}"
+          echo "🔀 Repository Owner: ${{ github.repository_owner }}"
+          echo "🌿 Default Branch: ${{ github.event.repository.default_branch }}"
+          echo "👀 Repository Visibility: ${{ github.event.repository.visibility }}"
+          echo ""
+          echo "=========================================="
+          echo "👤 ACTOR INFORMATION"
+          echo "=========================================="
+          echo ""
+          echo "🧑 Triggered By: ${{ github.actor }}"
+          echo "🎭 Event Name: ${{ github.event_name }}"
+          echo "⏰ Workflow Run ID: ${{ github.run_id }}"
+          echo "🔢 Workflow Run Number: ${{ github.run_number }}"
+          echo ""
+          echo "=========================================="
+          echo "📄 ISSUE BODY (First 200 chars)"
+          echo "=========================================="
+          echo "${{ github.event.issue.body }}" | head -c 200
+          echo ""
+          echo ""
+          echo "=========================================="
+          echo "🏷️  LABELS"
+          echo "=========================================="
+          
+      - name: Output Issue Labels
+        run: |
+          echo "Labels Count: ${{ github.event.issue.labels && length(github.event.issue.labels) || 0 }}"
+          echo "Labels: ${{ toJSON(github.event.issue.labels.*.name) }}"
+          echo ""
+          
+      - name: Output Assignees
+        run: |
+          echo "=========================================="
+          echo "👥 ASSIGNEES"
+          echo "=========================================="
+          echo "Assignees Count: ${{ github.event.issue.assignees && length(github.event.issue.assignees) || 0 }}"
+          echo "Assignees: ${{ toJSON(github.event.issue.assignees.*.login) }}"
+          echo ""
+          
+      - name: Output Additional Context
+        run: |
+          echo "=========================================="
+          echo "🔍 ADDITIONAL CONTEXT"
+          echo "=========================================="
+          echo ""
+          echo "🗓️  Issue Created At: ${{ github.event.issue.created_at }}"
+          echo "♻️  Issue Updated At: ${{ github.event.issue.updated_at }}"
+          echo "💬 Comments Count: ${{ github.event.issue.comments }}"
+          echo "🔒 Issue Locked: ${{ github.event.issue.locked }}"
+          echo ""
+          
+      - name: Output Full GitHub Context (JSON)
+        run: |
+          echo "=========================================="
+          echo "🌐 FULL GITHUB CONTEXT (JSON)"
+          echo "=========================================="
+          echo '${{ toJSON(github) }}'
+          echo ""
+          
+      - name: Output Issue Event Context (JSON)
+        run: |
+          echo "=========================================="
+          echo "🎯 ISSUE EVENT CONTEXT (JSON)"
+          echo "=========================================="
+          echo '${{ toJSON(github.event.issue) }}'
+          echo ""
+          echo "=========================================="
+          echo "✅ ISSUE EVENT DETAILS OUTPUT COMPLETE"
+          echo "=========================================="
+
