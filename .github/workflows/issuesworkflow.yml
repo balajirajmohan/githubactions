@@ -1,4 +1,4 @@
-name: Event Details
+name: EventDetails
 on: 
   issues:
     types: [opened, edited, deleted, closed, reopened, assigned, unassigned, labeled, unlabeled]
