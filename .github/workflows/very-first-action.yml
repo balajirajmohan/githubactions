@@ -4,6 +4,8 @@ jobs:
   first-job:
     runs-on: ubuntu-latest
     steps:
+      - name: clone the github repo
+        run: " git clone https://github.com/jaygajera17/E-commerce-project-springBoot.git "
       - name: List all the files
         run: " ls -lrth"
       - name: print greeting
