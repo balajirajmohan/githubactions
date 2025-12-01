@@ -12,6 +12,7 @@ jobs:
               run: npm test
 
     Deploy:
+        needs: test
         runs-on: ubuntu-latest
         steps:
             - name: Get code
@@ -20,10 +21,13 @@ jobs:
               run: npm install
             - name: Build npm
               run: npm run build
-
-            - name: Deploy
-              run: echo "Deployed"
-
+            - name: Deploy to Vercel
+              uses: amondnet/vercel-action@v25
+              with:
+                vercel-token: ${{ secrets.VERCEL_TOKEN }}
+                vercel-org-id: ${{ secrets.ORG_ID }}
+                vercel-project-id: ${{ secrets.PROJECT_ID }}
+                vercel-args: '--prod'
     
 
 
