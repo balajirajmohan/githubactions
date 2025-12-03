@@ -22,9 +22,8 @@ jobs:
             - name: lint
               run: npm run lint
             - name: start server
-              run: npm start &
-            - name: wait for server
-              run: npx wait-on http://127.0.0.1:8080 -t 30000
+              run: npm start & npx wait-on http://localhost:$PORT
+            
             - name: test
               run: npm test
 
