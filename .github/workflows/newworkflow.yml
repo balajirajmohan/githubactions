@@ -21,18 +21,18 @@ jobs:
               run: npm install
             - name: lint
               run: npm run lint
+            - name: start server
+              run: npm start &
+            - name: wait for server
+              run: npx wait-on http://127.0.0.1:8080 -t 30000
             - name: test
               run: npm test
-            - name: build
-              run: npm run build
 
             - name: upload artifacts
               uses: actions/upload-artifact@v4
               with:
                 name: dist-files
-                path: |
-                 dist
-                 package.json
+                path: package.json
     
 
 
@@ -44,10 +44,6 @@ jobs:
               uses: actions/checkout@v4
             - name: install dependencies
               run: npm install
-            - name: build
-              run: npm run build
-            
-            
 
             - name: Download Artifacts
               uses: actions/download-artifact@v4
