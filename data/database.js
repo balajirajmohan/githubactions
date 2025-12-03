@@ -5,7 +5,17 @@ const dbUser = process.env.MONGODB_USERNAME;
 const dbPassword = process.env.MONGODB_PASSWORD;
 const dbName = process.env.MONGODB_DB_NAME;
 
-const uri = `mongodb+srv://${dbUser}:${dbPassword}@${clusterAddress}/?retryWrites=true&w=majority`;
+// Debug: Log what we have (mask password)
+console.log('MongoDB Config Check:');
+console.log('  Cluster:', clusterAddress || 'MISSING');
+console.log('  User:', dbUser || 'MISSING');
+console.log('  Password:', dbPassword ? '***' + dbPassword.slice(-4) : 'MISSING');
+console.log('  Database:', dbName || 'MISSING');
+
+// URL encode password to handle special characters
+const encodedPassword = encodeURIComponent(dbPassword);
+const uri = `mongodb+srv://${dbUser}:${encodedPassword}@${clusterAddress}/?retryWrites=true&w=majority`;
+
 const client = new MongoClient(uri, {
   serverSelectionTimeoutMS: 5000,
   connectTimeoutMS: 10000,
