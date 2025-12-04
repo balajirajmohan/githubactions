@@ -5,10 +5,6 @@ on:
       - master
 
 env:
-  MONGODB_DB_NAME: balajibrb
-  MONGODB_PASSWORD: JESUSsaves@123
-  MONGODB_USERNAME: balajibr
-  MONGODB_CLUSTER_ADDRESS: cluster0.o984wk7.mongodb.net
   PORT: 8080
 jobs:
     lint-test-build: 

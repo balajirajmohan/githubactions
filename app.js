@@ -1,13 +1,19 @@
 import bodyParser from 'body-parser';
 import express from 'express';
 
-import eventRoutes from './routes/events.js';
+import attendanceRoutes from './routes/attendance.js';
 
 const app = express();
 
 app.use(bodyParser.json());
 
-app.use(eventRoutes);
+// Health check endpoint
+app.get('/health', (req, res) => {
+  res.json({ status: 'OK', service: 'Office Attendance System' });
+});
+
+// Attendance routes
+app.use('/api/attendance', attendanceRoutes);
 
 // For local development and testing
 if (process.env.NODE_ENV !== 'production' || process.env.CI) {
