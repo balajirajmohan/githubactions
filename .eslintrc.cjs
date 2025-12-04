@@ -1,17 +1,29 @@
 module.exports = {
   env: {
-    node: true,
+    browser: true,
     es2021: true,
   },
-  extends: 'eslint:recommended',
+  extends: [
+    'eslint:recommended',
+    'plugin:react/recommended',
+    'plugin:react/jsx-runtime'
+  ],
   parserOptions: {
     ecmaVersion: 'latest',
     sourceType: 'module',
+    ecmaFeatures: {
+      jsx: true
+    }
   },
+  plugins: ['react'],
   rules: {
-    // Customize your rules here
+    'react/prop-types': 'warn',
     'no-unused-vars': 'warn',
-    'no-console': 'off',
   },
+  settings: {
+    react: {
+      version: 'detect'
+    }
+  }
 };
 
