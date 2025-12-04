@@ -3,9 +3,42 @@ on:
   push:
     branches:
       - master
+  workflow_dispatch:
+    inputs:
+      runner-type:
+        description: 'Runner to use (ubuntu-latest, ubuntu-22.04, windows-latest, macos-latest)'
+        required: true
+        default: 'ubuntu-latest'
+        type: choice
+        options:
+          - ubuntu-latest
+          - ubuntu-22.04
+          - ubuntu-20.04
+          - windows-latest
+          - macos-latest
+          - macos-13
+      skip-tests:
+        description: 'Skip test job'
+        required: false
+        type: boolean
+        default: false
+      skip-deploy:
+        description: 'Skip deployment'
+        required: false
+        type: boolean
+        default: false
+      environment:
+        description: 'Deployment environment'
+        required: true
+        default: 'production'
+        type: choice
+        options:
+          - development
+          - staging
+          - production
 jobs:
   lint:
-    runs-on: ubuntu-latest
+    runs-on: ${{ inputs.runner-type || 'ubuntu-latest' }}
     steps:
       - name: Get code
         uses: actions/checkout@v3
@@ -20,7 +53,8 @@ jobs:
       - name: Lint code
         run: npm run lint
   test:
-    runs-on: ubuntu-latest
+    runs-on: ${{ inputs.runner-type || 'ubuntu-latest' }}
+    if: ${{ !inputs.skip-tests }}
     steps:
       - name: Get code
         uses: actions/checkout@v3
@@ -43,7 +77,8 @@ jobs:
           path: test.json
   build:
     needs: test
-    runs-on: ubuntu-latest
+    if: ${{ !cancelled() && !inputs.skip-tests || success() }}
+    runs-on: ${{ inputs.runner-type || 'ubuntu-latest' }}
     steps:
       - name: Get code
         uses: actions/checkout@v3
@@ -65,7 +100,8 @@ jobs:
           path: dist
   deploy:
     needs: build
-    runs-on: ubuntu-latest
+    if: ${{ !inputs.skip-deploy }}
+    runs-on: ${{ inputs.runner-type || 'ubuntu-latest' }}
     steps:
       - name: Get build artifacts
         uses: actions/download-artifact@v4
@@ -74,4 +110,6 @@ jobs:
       - name: Output contents
         run: ls
       - name: Deploy
-        run: echo "Deploying..."
+        run: |
+          echo "Deploying to ${{ inputs.environment || 'production' }} environment..."
+          echo "Runner: ${{ inputs.runner-type || 'ubuntu-latest' }}"
