@@ -2,11 +2,13 @@ module.exports = {
   env: {
     browser: true,
     es2021: true,
+    'vitest-globals/env': true,
   },
   extends: [
     'eslint:recommended',
     'plugin:react/recommended',
-    'plugin:react/jsx-runtime'
+    'plugin:react/jsx-runtime',
+    'plugin:vitest-globals/recommended'
   ],
   parserOptions: {
     ecmaVersion: 'latest',
@@ -15,7 +17,7 @@ module.exports = {
       jsx: true
     }
   },
-  plugins: ['react'],
+  plugins: ['react', 'vitest-globals'],
   rules: {
     'react/prop-types': 'warn',
     'no-unused-vars': 'warn',
