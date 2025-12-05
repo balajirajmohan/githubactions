@@ -11,6 +11,7 @@ jobs:
   test:
     environment: testing
     runs-on: ubuntu-latest
+    container: node:16
     env:
       MONGODB_CONNECTION_PROTOCOL: mongodb+srv
       MONGODB_CLUSTER_ADDRESS: cluster0.8m1b5dh.mongodb.net
@@ -37,6 +38,7 @@ jobs:
   deploy:
     needs: test
     runs-on: ubuntu-latest
+    container: node:16
     steps:
       - name: Output information
         env:
